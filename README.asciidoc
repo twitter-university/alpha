@@ -1,0 +1,16 @@
+= About This Project
+
+This project demonstrates how to put together a simple custom device for Android Open Source Project (AOSP).
+
+Clone into aosp/device/marakana/alpha
+
+This code was developed to support Marakana's Android Training courses.
+
+For more info, see http://marakana.com/training/android/
+
+== Legal
+
+Please see ++NOTICE++ file in this directory for copyright, license terms, and legal disclaimers.
+
+Copyright © 2012 Marakana Inc.
+
