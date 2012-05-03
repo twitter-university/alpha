@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script is provided to help set up the basic alpha device - assuming it did not already exist.
+# This script is provided to help set up the basic alpha device - assuming it does not already exist.
 # Make sure to run it from the root of the Android source directory
 
 mkdir -p device/marakana/alpha
