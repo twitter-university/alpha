@@ -2,7 +2,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include <libmrknlog.h>
+#include <mrknlog.h>
 
 int main (int argc, char* argv[]) {
     int usedSize = mrkn_get_used_log_size();

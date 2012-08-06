@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <utils/Log.h>
-#include <libmrknlog.h>
+#include <mrknlog.h>
+#include <mrknutils.h>
 
 int main (int argc, char* argv[]) {
   if (argc != 2) {
