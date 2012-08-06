@@ -1,4 +1,4 @@
-#include <libmrknlog.h>
+#include <mrknlog.h>
 #include "com_marakana_android_lib_log_LibLog.h"
 
 static void ThrowLibLogException(JNIEnv *env, const char *message) {
