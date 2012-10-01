@@ -4,5 +4,6 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_SRC_FILES := com_marakana_android_lib_log_LibLog.c
 LOCAL_C_INCLUDES += $(JNI_H_INCLUDE) $(LOCAL_PATH)/../../../include/
 LOCAL_SHARED_LIBRARIES := libmrknlog
+LOCAL_CFLAGS += -g -O0
 LOCAL_MODULE := libmrknlog_jni
 include $(BUILD_SHARED_LIBRARY)
