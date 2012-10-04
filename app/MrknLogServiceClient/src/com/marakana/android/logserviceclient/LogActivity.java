@@ -3,7 +3,6 @@ package com.marakana.android.logserviceclient;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -11,48 +10,48 @@ import android.widget.TextView;
 
 import com.marakana.android.service.log.LogManager;
 
-public class LogActivity extends Activity implements Runnable, OnClickListener {
+public class LogActivity extends Activity implements OnClickListener, LogManager.LogListener {
 
   private TextView output;
 
-  private Handler handler;
+  private final LogManager logManager = LogManager.getInstance();
 
-  private LogManager logManager;
+  private final int totalLogSize = this.logManager.getTotalLogSize();
 
   public void onCreate(Bundle savedInstanceState) {
-    this.logManager = LogManager.getInstance();
     super.onCreate(savedInstanceState);
     super.setContentView(R.layout.log);
     this.output = (TextView)super.findViewById(R.id.output);
     Button button = (Button)super.findViewById(R.id.button);
     button.setOnClickListener(this);
-    this.handler = new Handler();
   }
 
-  private void updateOutput() {
+  private void updateOutput(int usedLogSize) {
     this.output.setText(super.getString(R.string.log_utilization_message, 
-      this.logManager.getUsedLogSize(), this.logManager.getTotalLogSize()));
+      usedLogSize, this.totalLogSize));
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    this.handler.post(this);
+    this.logManager.register(this);
+    this.updateOutput(this.logManager.getUsedLogSize());
   }
 
   @Override
   public void onPause() {
     super.onPause();
-    this.handler.removeCallbacks(this);
+    this.logManager.unregister(this);
   }
 
+  @Override
   public void onClick(View view) {
     this.logManager.flushLog();
-    this.updateOutput();
+    this.updateOutput(0);
   }
-
-  public void run() {
-    this.updateOutput();
-    this.handler.postDelayed(this, 1000);
+  
+  @Override
+  public void onUsedLogSizeChange(int usedLogSize) {
+    this.updateOutput(usedLogSize);
   }
 }

@@ -5,6 +5,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := com.marakana.android.service.log
 LOCAL_SRC_FILES := $(call all-java-files-under,.)
+LOCAL_SRC_FILES += com/marakana/android/service/log/ILogListener.aidl
 LOCAL_SRC_FILES += com/marakana/android/service/log/ILogService.aidl
 include $(BUILD_JAVA_LIBRARY)
 
