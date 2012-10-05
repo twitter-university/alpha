@@ -6,12 +6,14 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.Log;
+import android.util.Slog; /* This is to avoid generating events for ourselves */
 import java.util.HashSet;
 import java.util.Set;
 
 public class LogManager {
   private static final String TAG = "LogManager";
   private static final String REMOTE_SERVICE_NAME = ILogService.class.getName();
+  private static final boolean DEBUG = false;
   
   public static interface LogListener {
     public void onUsedLogSizeChange(int usedLogSize);
@@ -23,6 +25,7 @@ public class LogManager {
   
   private final ILogListener listener = new ILogListener.Stub() {
     public void onUsedLogSizeChange(final int usedLogSize) {
+      if (DEBUG) Slog.d(TAG, "There is more used data: " + usedLogSize);
       Message message = LogManager.this.handler.obtainMessage();
       message.arg1 = usedLogSize;
       LogManager.this.handler.sendMessage(message);
@@ -34,7 +37,9 @@ public class LogManager {
     public void handleMessage(Message message) {
       int usedLogSize = message.arg1;
       synchronized(LogManager.this.listeners) {
+        if (DEBUG) Slog.d(TAG, "Notifying local listeners of more used data: " + usedLogSize);
         for (LogListener logListener : LogManager.this.listeners) {
+          if (DEBUG) Slog.d(TAG, "Notifying local listener [" + logListener + "] of more used data: " + usedLogSize);
           logListener.onUsedLogSizeChange(usedLogSize);
         }
       }
@@ -55,7 +60,7 @@ public class LogManager {
   
   public void flushLog() {
     try {
-      Log.d(TAG, "Flushing logs. If it works, you won't see this message.");
+      if (DEBUG) Slog.d(TAG, "Flushing log.");
       this.service.flushLog();
     } catch (RemoteException e) {
       throw new RuntimeException("Failed to flush log", e);
@@ -64,6 +69,7 @@ public class LogManager {
   
   public int getTotalLogSize() {
     try {
+      if (DEBUG) Slog.d(TAG, "Getting total log size.");
       return this.service.getTotalLogSize();
     } catch (RemoteException e) {
       throw new RuntimeException("Failed to get total log size", e);
@@ -72,6 +78,7 @@ public class LogManager {
   
   public int getUsedLogSize() {
     try {
+      if (DEBUG) Slog.d(TAG, "Getting used log size.");
       return this.service.getUsedLogSize();
     } catch (Exception e) {
       throw new RuntimeException("Failed to get used log size", e);
@@ -85,10 +92,13 @@ public class LogManager {
           Log.w(TAG, "Already registered: " + listener);
         } else {
           try {
-            if (this.listeners.isEmpty()) {
+            boolean registerRemote = this.listeners.isEmpty();
+            if (DEBUG) Log.d(TAG, "Registering local listener.");
+            this.listeners.add(listener);
+            if (registerRemote) {
+              if (DEBUG) Log.d(TAG, "Registering remote listener.");
               this.service.register(this.listener);
             }
-            this.listeners.add(listener);
           } catch (RemoteException e) {
             throw new RuntimeException("Failed to register " + listener, e);
           }
@@ -100,13 +110,16 @@ public class LogManager {
   public void unregister(LogListener listener) {
     if (listener != null) {
       synchronized(this.listeners) {
-        if (!this.listeners.remove(listener)) {
-           Log.w(TAG, "Not registered: " + listener);
+        if (!this.listeners.contains(listener)) {
+          Log.w(TAG, "Not registered: " + listener);
+        } else {
+          if (DEBUG) Log.d(TAG, "Unregistering local listener.");
+          this.listeners.remove(listener);
         }
         if (this.listeners.isEmpty()) {
           try {
+            if (DEBUG) Log.d(TAG, "Unregistering remote listener.");
             this.service.unregister(this.listener);
-
           } catch (RemoteException e) {
             throw new RuntimeException("Failed to unregister " + listener, e);
           }

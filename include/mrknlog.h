@@ -1,37 +1,49 @@
-#ifndef _MRKN_LOG_H_
-#define _MRKN_LOG_H_
+#ifndef _MRKNLOG_INTERFACE_H
+#define _MRKNLOG_INTERFACE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <stdint.h>
+#include <sys/cdefs.h>
+#include <sys/types.h>
+#include <hardware/hardware.h>
 
-/*
- * Flush the log.
- * @return < 0 on error; 0 otherwise
- */
-extern int mrkn_flush_log();
+__BEGIN_DECLS
 
-/*
- * Get the max log size
- * @return < 0 on error; max log size otherwise
- */
-extern int mrkn_get_total_log_size();
+#define MRKNLOG_HARDWARE_MODULE_ID "mrknlog"
 
-/*
- * Get the used log size
- * @return < 0 on error; used log size otherwise
- */
-extern int mrkn_get_used_log_size();
+struct mrknlog_device_t {
+  struct hw_device_t common;
+  
+  int fd;
+  
+  /*
+   * Flush the log device
+   * 
+   * Returns: 0 on success, error code on failure
+   */
+  int (*flush_log)(struct mrknlog_device_t* dev);
+  
+  /*
+   * Get the total log size
+   * 
+   * Returns: total log size, < 0 on failure
+   */
+  int (*get_total_log_size)(struct mrknlog_device_t* dev);
 
-/*
- * Wait until log data becomes available or until timeout expires.
- * @param timeout - max wait time, in ms (-1 means wait forever)
- * @return < 0 or error, 0 on timeout, > 0 on data available
- */ 
-extern int mrkn_wait_for_log_data(int timeout);
+  /*
+   * Get the used log size
+   * 
+   * Returns: used log size, < 0 on failure
+   */
+  int (*get_used_log_size)(struct mrknlog_device_t* dev);
+  
+  /*
+   * Wait until more log data becomes available or until timeout expires
+   * timeout: the max wait time (in ms). The value of -1 means wait forever
+   * Returns: < 0 or error, 0 on timeout, the amount of new data (in bytes)
+   */ 
+  int (*wait_for_log_data)(struct mrknlog_device_t* dev, int timeout);
+};
 
-#ifdef __cplusplus
-}  /* End of the 'extern "C"' block */
-#endif
-#endif /* End of the _MRKN_LOG_H_ block */
+__END_DECLS
 
+#endif /* End of the _MRKNLOG_INTERFACE_H block */
