@@ -5,10 +5,13 @@ public class Main {
   public static void main (String[] args) {
 	try {
       int handle = LibLog.init();
-      int usedSize = LibLog.getUsedLogSize(handle);
-      int totalSize = LibLog.getTotalLogSize(handle);
-      LibLog.flushLog(handle);
-      LibLog.close(handle);
+      try {
+          int usedSize = LibLog.getUsedLogSize(handle);
+          int totalSize = LibLog.getTotalLogSize(handle);
+          LibLog.flushLog(handle);
+      } finally {
+          LibLog.close(handle);
+      }
       System.out.printf("Flushed log. Previously it was consuming %d of %d bytes\n",
           usedSize, totalSize);
     } catch (LibLogException e) {

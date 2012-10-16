@@ -40,6 +40,7 @@ int main (int argc, char* argv[]) {
             SLOGE("Failed to flush log. Bailing out");
             break;
           }
+          count++;
           sleep(frequency);
         }
         SLOGI("Done after %d iterations.", count);
