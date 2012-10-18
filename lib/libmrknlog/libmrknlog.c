@@ -124,7 +124,7 @@ static struct hw_module_methods_t mrknlog_module_methods = {
   .open = open_mrknlog,                                            /* <7> */
 };
 
-struct hw_module_t HAL_MODULE_INFO_SYM = {                         /* <9> */
+struct hw_module_t HAL_MODULE_INFO_SYM = {                         /* <8> */
   .tag = HARDWARE_MODULE_TAG,
   .version_major = 1,
   .version_minor = 0,
