@@ -36,8 +36,8 @@ public class LogManager {
     @Override
     public void handleMessage(Message message) {
       int usedLogSize = message.arg1;
-      synchronized(LogManager.this.listeners) {
-        if (DEBUG) Slog.d(TAG, "Notifying local listeners of more used data: " + usedLogSize);
+      if (DEBUG) Slog.d(TAG, "Notifying local listeners of more used data: " + usedLogSize);
+      synchronized(LogManager.this.listeners) {        
         for (LogListener logListener : LogManager.this.listeners) {
           if (DEBUG) Slog.d(TAG, "Notifying local listener [" + logListener + "] of more used data: " + usedLogSize);
           logListener.onUsedLogSizeChange(usedLogSize);
