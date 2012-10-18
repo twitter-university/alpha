@@ -13,7 +13,3 @@ PRODUCT_PACKAGES += \
     com.marakana.android.service.log.xml
 
 PRODUCT_PACKAGES += MrknLogService
-PRODUCT_PACKAGES += MrknLogServiceClient
-
-PRODUCT_PACKAGES += MrknLogLibClient
-
