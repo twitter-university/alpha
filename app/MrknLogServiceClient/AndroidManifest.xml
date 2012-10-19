@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.marakana.android.logserviceclient"
-  android:versionCode="1" android:versionName="1.0">
-  <uses-sdk android:minSdkVersion="8" />
+  package="com.marakana.android.logserviceclient">
   <uses-permission android:name="com.marakana.android.logservice.FLUSH_LOG" />
   <application android:label="@string/app_name">
     <uses-library android:name="com.marakana.android.service.log"
