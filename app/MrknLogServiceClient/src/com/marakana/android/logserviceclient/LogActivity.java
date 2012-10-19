@@ -8,9 +8,10 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.marakana.android.service.log.LogListener;
 import com.marakana.android.service.log.LogManager;
 
-public class LogActivity extends Activity implements OnClickListener, LogManager.LogListener {
+public class LogActivity extends Activity implements OnClickListener, LogListener {
 
   private TextView output;
 
