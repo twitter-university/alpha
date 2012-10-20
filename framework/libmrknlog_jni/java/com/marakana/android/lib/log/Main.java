@@ -3,20 +3,20 @@ package com.marakana.android.lib.log;
 /** @hide */
 public class Main {
   public static void main (String[] args) {
-	try {
-      int handle = LibLog.init();
+    try {
+      LibLog libLog = new LibLog();
       try {
-          int usedSize = LibLog.getUsedLogSize(handle);
-          int totalSize = LibLog.getTotalLogSize(handle);
-          LibLog.flushLog(handle);
-          System.out.printf("Flushed log. Previously it was consuming %d of %d bytes\n",
-              usedSize, totalSize);
+        int usedSize = libLog.getUsedLogSize();
+        int totalSize = libLog.getTotalLogSize();
+        libLog.flushLog();
+        System.out.printf("Flushed log. Previously it was consuming %d of %d bytes\n",
+          usedSize, totalSize);
       } finally {
-          LibLog.close(handle);
+        libLog.close();
       }
     } catch (LibLogException e) {
-	  System.err.println("Failed to flush the log");
-	  e.printStackTrace();
+	    System.err.println("Failed to flush the log");
+	    e.printStackTrace();
     }
   }
 }

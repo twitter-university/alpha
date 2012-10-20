@@ -20,54 +20,57 @@ class ILogServiceImpl extends ILogService.Stub {
   private static final String TAG = "ILogServiceImpl";
   private static final int INCREMENTAL_TIMEOUT = 2 * 1000;
   private static final boolean DEBUG = false;
-  private final Map<IBinder, ListenerTracker> listeners = new HashMap<IBinder, ListenerTracker>();
-  private final AtomicInteger flushCounter = new AtomicInteger();
+  private final Map<IBinder, ListenerTracker> listeners = 
+    new HashMap<IBinder, ListenerTracker>();                       // <1>
+  private final AtomicInteger flushCounter = new AtomicInteger();  // <2>
   private final Context context;
-  private LogServiceThread logServiceThread;
-  private int nativeHandle;
+  private final LibLog libLog;                                     // <4>  
+  private LogServiceThread logServiceThread;                       // <3>
+
 
   ILogServiceImpl(Context context) {
     this.context = context;
-    this.nativeHandle = LibLog.init();
+    this.libLog = new LibLog();                                    // <4>
   }
   
   protected void finalize() throws Throwable {
-    LibLog.close(this.nativeHandle);
+    this.libLog.close();                                           // <4>
     super.finalize();
   }
 
   public void flushLog() {
-    this.context.enforceCallingOrSelfPermission(Manifest.permission.FLUSH_LOG, "Flush somewhere else");
+    this.context.enforceCallingOrSelfPermission(
+      Manifest.permission.FLUSH_LOG, "Flush somewhere else");      // <5>
     if (DEBUG) Slog.d(TAG, "Flushing log.");
-    LibLog.flushLog(this.nativeHandle);
-    this.flushCounter.incrementAndGet();
+    this.libLog.flushLog();                                        // <6>
+    this.flushCounter.incrementAndGet();                           // <2>
   }
 
   public int getUsedLogSize() {
     if (DEBUG) Slog.d(TAG, "Getting used log size.");
-    return LibLog.getUsedLogSize(this.nativeHandle);
+    return this.libLog.getUsedLogSize();                           // <6>
   }
 
   public int getTotalLogSize() {
     if (DEBUG) Slog.d(TAG, "Getting total log size.");
-    return LibLog.getTotalLogSize(this.nativeHandle);
+    return this.libLog.getTotalLogSize();                          // <6>
   }
 
   public void register(ILogListener listener) throws RemoteException {
     if (listener != null) {
       IBinder binder = listener.asBinder();
-      synchronized(this.listeners) {
+      synchronized(this.listeners) {                               // <1>
         if (this.listeners.containsKey(binder)) {
-          Slog.w(TAG, "Ignoring duplicate listener registration attempt: " + binder);
+          Slog.w(TAG, "Ignoring duplicate listener: " + binder);
         } else {
           ListenerTracker listenerTracker = new ListenerTracker(listener);
           binder.linkToDeath(listenerTracker, 0);
-          this.listeners.put(binder, listenerTracker);
+          this.listeners.put(binder, listenerTracker);             // <1>
           if (DEBUG) Slog.d(TAG, "Registered listener: " + binder);
           if (this.logServiceThread == null) {
             if (DEBUG) Slog.d(TAG, "Starting thread");
-            this.logServiceThread = new LogServiceThread();
-            this.logServiceThread.start();
+            this.logServiceThread = new LogServiceThread();        // <3>
+            this.logServiceThread.start();                         // <3>
           }
         }
       }
@@ -77,17 +80,18 @@ class ILogServiceImpl extends ILogService.Stub {
   public void unregister(ILogListener listener) {
     if (listener != null) {
       IBinder binder = listener.asBinder();
-      synchronized(this.listeners) {
-        ListenerTracker listenerTracker = this.listeners.remove(binder);
+      synchronized(this.listeners) {                               // <1>
+        ListenerTracker listenerTracker = 
+          this.listeners.remove(binder);                           // <1>
         if (listenerTracker == null) {
-          Slog.w(TAG, "Ignoring unregistered listener unregistration attempt: " + binder);
+          Slog.w(TAG, "Ignoring unregistered listener: " + binder);
         } else {
           if (DEBUG) Slog.d(TAG, "Unregistered listener: " + binder);
           binder.unlinkToDeath(listenerTracker, 0);
           if (this.logServiceThread != null && this.listeners.isEmpty()) {
             if (DEBUG) Slog.d(TAG, "Stopping thread");
-            this.logServiceThread.interrupt();
-            this.logServiceThread = null;
+            this.logServiceThread.interrupt();                     // <3>
+            this.logServiceThread = null;                          // <3>
           }
         }
       }
@@ -143,24 +147,25 @@ class ILogServiceImpl extends ILogService.Stub {
     }
   }
 
-  private final class LogServiceThread extends Thread {
+  private final class LogServiceThread extends Thread {            // <3>
     public void run() {
-      while(!Thread.interrupted()) {
+      while(!Thread.interrupted()) {                               // <3>
         try {
           if (DEBUG) Slog.d(TAG, "Waiting for log data");
           int usedSize = ILogServiceImpl.this.getUsedLogSize();
-          if (LibLog.waitForLogData(ILogServiceImpl.this.nativeHandle, INCREMENTAL_TIMEOUT)
+          if (ILogServiceImpl.this.libLog.waitForLogData(INCREMENTAL_TIMEOUT)
             || (usedSize != 0 && ILogServiceImpl.this.getUsedLogSize() == 0)) {
             usedSize = ILogServiceImpl.this.getUsedLogSize();
             if (DEBUG) Slog.d(TAG, "Log data changed. Used data is now at " + usedSize);  
             synchronized(ILogServiceImpl.this.listeners) {
-              for (ListenerTracker listenerTracker : ILogServiceImpl.this.listeners.values()) {
+              for (Map.Entry<IBinder, ListenerTracker> entry : ILogServiceImpl.this.listeners.entrySet()) {
+                ILogListener listener = entry.getValue().getListener();
                 try {
-                  if (DEBUG) Slog.d(TAG, "Notifying listener: " +  listenerTracker.getListener().asBinder());
-                  listenerTracker.getListener().onUsedLogSizeChange(usedSize);
+                  if (DEBUG) Slog.d(TAG, "Notifying listener: " +  entry.getKey());
+                  listener.onUsedLogSizeChange(usedSize);
                 } catch (RemoteException e) {
-                  Slog.e(TAG, "Failed to update listener: " + listenerTracker.getListener().asBinder(), e); 
-                  ILogServiceImpl.this.unregister(listenerTracker.getListener());
+                  Slog.e(TAG, "Failed to update listener: " + entry.getKey(), e); 
+                  ILogServiceImpl.this.unregister(listener);
                 }
               }
             }  

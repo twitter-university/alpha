@@ -13,7 +13,7 @@ public class LogActivity extends Activity
 
   private TextView output;
   private Handler handler;
-  private int handle;
+  private LibLog libLog;
 
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -24,18 +24,10 @@ public class LogActivity extends Activity
     this.handler = new Handler();
   }
 
-  private void updateOutput() {
-    int usedLogSize = LibLog.getUsedLogSize(this.handle);
-    int totalLogSize = LibLog.getTotalLogSize(this.handle);
-    this.output.setText(
-      super.getString(R.string.log_utilization_message,      
-      usedLogSize, totalLogSize));
-  }
-
   @Override
   public void onResume() {
     super.onResume();
-    this.handle = LibLog.init();
+    this.libLog = new LibLog();
     this.handler.post(this);
   }
  
@@ -43,16 +35,24 @@ public class LogActivity extends Activity
   public void onPause() {
     super.onPause();
     this.handler.removeCallbacks(this);
-    LibLog.close(this.handle);
+    this.libLog.close();
   }
 
   public void onClick(View view) {
-    LibLog.flushLog(this.handle);
+    this.libLog.flushLog();
     this.updateOutput();
   }
 
   public void run() {
     this.updateOutput();
     this.handler.postDelayed(this, 1000);
+  }
+
+  private void updateOutput() {
+    int usedLogSize = this.libLog.getUsedLogSize();
+    int totalLogSize = this.libLog.getTotalLogSize();
+    this.output.setText(
+      super.getString(R.string.log_utilization_message,      
+      usedLogSize, totalLogSize));
   }
 }

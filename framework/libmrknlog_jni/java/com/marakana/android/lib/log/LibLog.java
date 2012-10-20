@@ -1,12 +1,24 @@
 package com.marakana.android.lib.log;
 
 public class LibLog {
-  public native static int init() throws LibLogException;
-  public native static void close(int handle);
-  public native static void flushLog(int handle) throws LibLogException;
-  public native static int getTotalLogSize(int handle) throws LibLogException;
-  public native static int getUsedLogSize(int handle) throws LibLogException;
-  public native static boolean waitForLogData(int handle, int timeoutInMs) throws LibLogException;
+  
+  private int nativeHandle;
+  
+  public LibLog() {
+    this.init();
+  }
+    
+  @Override
+  protected void finalize() {
+    this.close();
+  }
+
+  private native int init() throws LibLogException;
+  public native void close();  
+  public native void flushLog() throws LibLogException;
+  public native int getTotalLogSize() throws LibLogException;
+  public native int getUsedLogSize() throws LibLogException;
+  public native boolean waitForLogData(int timeoutInMs) throws LibLogException;
 
   static {
      System.loadLibrary("mrknlog_jni");
