@@ -13,7 +13,7 @@ public class LibLog {
     this.close();
   }
 
-  private native int init() throws LibLogException;
+  private native void init() throws LibLogException;
   public native void close();  
   public native void flushLog() throws LibLogException;
   public native int getTotalLogSize() throws LibLogException;
