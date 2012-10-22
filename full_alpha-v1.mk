@@ -10,3 +10,6 @@ PRODUCT_NAME := full_marakana_alpha
 PRODUCT_DEVICE := alpha
 PRODUCT_MODEL := Full Marakana Alpha Image for Emulator
 
+# Include the common definitions and packages
+include $(LOCAL_PATH)/common.mk
+
