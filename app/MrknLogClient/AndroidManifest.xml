@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.marakana.android.loglibclient">
-  <uses-permission android:name="android.permission.READ_LOGS"/>
+  package="com.marakana.android.mrknlogclient">
+  <uses-permission android:name="com.marakana.android.logservice.FLUSH_LOG" />
   <application android:label="@string/app_name">
-    <uses-library android:name="com.marakana.android.lib.log" android:required="true"/>
-    <activity android:name=".LogActivity" android:label="@string/app_name">
+    <uses-library android:name="com.marakana.android.service.log"
+      android:required="true" />
+    <activity android:name=".LogActivity"
+      android:label="@string/app_name">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />

@@ -1,4 +1,4 @@
-package com.marakana.android.loglibclient;
+package com.marakana.android.mrknlognative;
 
 import android.app.Activity;
 import android.os.Bundle;

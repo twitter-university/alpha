@@ -1,5 +1,5 @@
 
-package com.marakana.android.logserviceclient;
+package com.marakana.android.mrknlogclient;
 
 import android.app.Activity;
 import android.os.Bundle;

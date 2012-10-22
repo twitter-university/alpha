@@ -14,5 +14,5 @@ PRODUCT_MODEL := Full Marakana Alpha Image for Emulator
 include $(LOCAL_PATH)/common.mk
 
 # Add our device-specific packages
-PRODUCT_PACKAGES += MrknLogLibClient 
-PRODUCT_PACKAGES += MrknLogServiceClient 
+PRODUCT_PACKAGES += MrknLogNative
+PRODUCT_PACKAGES += MrknLogClient
