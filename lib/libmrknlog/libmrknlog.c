@@ -87,6 +87,7 @@ static int close_mrknlog(struct mrknlog_device_t* dev) {
   if (dev) {
     close(dev->fd);                                                /* <5> */
     free(dev);                                                     /* <6> */
+    dev = 0;
   }
   return 0;
 }
