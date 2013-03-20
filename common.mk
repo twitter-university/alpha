@@ -19,9 +19,8 @@ PRODUCT_COPY_FILES += $(LOCAL_KERNEL):kernel
 PRODUCT_COPY_FILES += $(MY_PATH)/init.marakanaalphaboard.rc:root/init.marakanaalphaboard.rc
 PRODUCT_COPY_FILES += $(MY_PATH)/ueventd.marakanaalphaboard.rc:root/ueventd.marakanaalphaboard.rc
 
-PRODUCT_COPY_FILES += \
-	device/generic/goldfish/data/etc/apns-conf.xml:system/etc/apns-conf.xml \
-	system/core/rootdir/etc/vold.fstab:system/etc/vold.fstab
+# Get the emulator-specific support for vold.fstab, which mounts the external storage (sdcard)
+PRODUCT_COPY_FILES += system/core/rootdir/etc/vold.fstab:system/etc/vold.fstab
 
 # Include all packages from this file
 include $(MY_PATH)/packages.mk
