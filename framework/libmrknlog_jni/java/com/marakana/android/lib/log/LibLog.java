@@ -10,9 +10,12 @@ public class LibLog {
     
   @Override
   protected void finalize() {
-    this.close();
+    if (nativeHandle != 0) {
+      this.close();
+    }
   }
 
+  private native static void libInit() throws LibLogException;
   private native void init() throws LibLogException;
   public native void close();  
   public native void flushLog() throws LibLogException;
@@ -22,6 +25,7 @@ public class LibLog {
 
   static {
      System.loadLibrary("mrknlog_jni");
+     libInit();
   }
 }
 
